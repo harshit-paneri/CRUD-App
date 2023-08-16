@@ -32,9 +32,10 @@ app.use((req,res,next)=>{
 });
 
 // set template engine
-app.set('view engine','ejs');
+app.set('view engine','ejs'); 
 
-
+//routes prefix
+app.use("",require("./routes/routes"));
 
 app.get("/", (req, res) => {
   res.send("Hello Word");
