@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/users");
 const multer = require("multer");
+const fs = require("fs");
 
 // img upload
 var storage = multer.diskStorage({
@@ -55,25 +56,64 @@ router.get("/", async (req, res) => {
   }
 }); 
 
-// home all users route
-// router.get("/",(req,res)=>{
-//     User.find().exec((error,users)=>{
-//         if(err){
-//             res.json({message: err.message})
-//         }
-//         else{
-//             res.render('index',{
-//                 title:'Home Page',
-//                 users : users,
-//             });
-//         }
-//     });
-// });
-
 //add user route
 router.get("/add", (req, res) => {
   // res.send("All Buddy you are at home");
   res.render("add_user", { title: "Add User" });
 });
+
+// user edit
+router.get("/edit/:id", async (req, res) => {
+    const id = req.params.id; // Extract the id parameter from the request
+    try {
+        const user = await User.findById(id).exec();
+
+        if (user == null) {
+            res.redirect('/');
+        } else {
+            res.render("edit_user", {
+                title: "Edit User",
+                user: user,
+            });
+        }
+    } catch (err) {
+        res.redirect('/');
+    }
+});
+
+// update user
+router.post('/update/:id', upload, async (req, res) => {
+    const id = req.params.id;
+    let new_image = "";
+    let old_image = req.body.old_image; 
+    if (req.file) {
+        new_image = req.file.filename;
+        try {
+            fs.unlinkSync("./uploads/" + old_image);
+        } catch (err) {
+            console.log(err);
+        }
+    } else {
+        new_image = old_image;
+    }
+
+    try {
+        await User.findByIdAndUpdate(id, {
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone,
+            image: new_image,
+        });
+
+        req.session.message = {
+            type: 'success',
+            message: 'User update successfuly!',
+        };
+        res.redirect('/');
+    } catch (err) {
+        res.json({ message: err.message, type: 'danger' });
+    }
+});
+
 
 module.exports = router;
