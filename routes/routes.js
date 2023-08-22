@@ -116,29 +116,31 @@ router.post('/update/:id', upload, async (req, res) => {
 });
 
 // Delete user route
+// Delete user route
 router.get('/delete/:id', async (req, res) => {
-    const id = req.params.id;
-    
-    try {
-        const result = await User.findByIdAndRemove(id).exec();
-        
-        if (result.image !== '') {
-            const imagePath = './uploads/' + user.image;
-            try {
-                fs.unlinkSync(imagePath );
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        
-        req.session.message = {
-            type: 'success',
-            message: 'User deleted successfully!'
-        };
-    } catch (error) {
-        res.json({ message: error.message });
-    }
-    
-    res.redirect("/");
+  const id = req.params.id;
+  
+  try {
+      const user = await User.findByIdAndRemove(id).exec(); // Retrieve the user
+      
+      if (user && user.image !== '') {
+          const imagePath = './uploads/' + user.image;
+          try {
+              fs.unlinkSync(imagePath);
+          } catch (err) {
+              console.log(err);
+          }
+      }
+      
+      req.session.message = {
+          type: 'success',
+          message: 'User deleted successfully!'
+      };
+  } catch (error) {
+      res.json({ message: error.message });
+  }
+  
+  res.redirect("/");
 });
+
 module.exports = router;
