@@ -6,6 +6,6 @@
 2) EJS
 3) MongoDB
 
-## Aplication View :
+## Application View :
 
 ![Alt text](/img/image.png)
